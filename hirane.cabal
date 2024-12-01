@@ -1,0 +1,64 @@
+cabal-version:      3.0
+name:               hirane
+version:            0.1.0.0
+synopsis: Higher-rank Newtypes
+-- description:
+license:            AGPL-3.0-or-later
+license-file:       LICENSE
+author:             Jaro Reinders
+maintainer:         jaro.reinders@gmail.com
+-- copyright:
+category:           Language
+build-type:         Simple
+extra-doc-files:    CHANGELOG.md
+-- extra-source-files:
+
+common warnings
+    ghc-options: -Wall -Wno-name-shadowing
+
+library
+    import:           warnings
+    exposed-modules:
+      Embedded.Hirane.HS,
+      Embedded.Hirane.Nat,
+      Embedded.Hirane.Int,
+      Embedded.Hirane.Fix,
+      Embedded.Hirane.Bit,
+      Embedded.Hirane.Byte,
+      Embedded.Hirane.List,
+      Embedded.Hirane.DList,
+      Embedded.Hirane.Maybe,
+      Embedded.Hirane.Product,
+      Embedded.Hirane.Sum,
+      Embedded.Hirane.Bool,
+      Embedded.Hirane.Ord,
+      Language.Hirane.AST
+    -- other-modules:
+    -- other-extensions:
+    build-depends:    base ^>=4.18.2.1
+    hs-source-dirs:   src
+    default-language: GHC2021
+
+executable hirane
+    import:           warnings
+    main-is:          Main.hs
+    other-modules: HiraneMain
+    -- other-extensions:
+    build-depends:
+        base ^>=4.18.2.1,
+        hirane
+
+    hs-source-dirs:   app
+    default-language: GHC2021
+
+test-suite hirane-test
+    import:           warnings
+    default-language: GHC2021
+    -- other-modules:
+    -- other-extensions:
+    type:             exitcode-stdio-1.0
+    hs-source-dirs:   test
+    main-is:          Main.hs
+    build-depends:
+        base ^>=4.18.2.1,
+        hirane
