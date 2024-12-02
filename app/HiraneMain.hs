@@ -1,3 +1,7 @@
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Redundant lambda" #-}
+{-# HLINT ignore "Avoid lambda" #-}
+{-# HLINT ignore "Use id" #-}
 module HiraneMain (main) where
 
 import Prelude (($))
@@ -16,6 +20,7 @@ import Embedded.Hirane.Product
 import Embedded.Hirane.Bit
 import Embedded.Hirane.Maybe
 import Embedded.Hirane.Fix
+import Embedded.Hirane.Ord
 
 split :: (a -> a -> Bool) -> a -> List a -> List (List a)
 split = \eq y xs0 -> foldr
@@ -79,5 +84,36 @@ readLine = \xs -> unList (split Nat.eq (Nat.pushBit b0 (Nat.pushBit b0 (Nat.push
 -- >>> from embedNat (Int.abs (Int.sub (to embedNat 2) (to embedNat 3)))
 -- 7
 
+sortedDifference :: List Nat -> List Nat -> Nat
+sortedDifference = \xs ys -> sum (zipWith (\x y -> Int.abs (Int.sub x y)) (sort Nat.cmp xs) (sort Nat.cmp ys))
+
+similarityScore :: List Nat -> List Nat -> Nat
+similarityScore = \xs ys -> fix (\go nx ny xs ys ->
+  unList xs
+    (\x xs' ->
+  unList xs'
+    (\x' _ ->
+  unOrdering (Nat.cmp x x')
+    (unList ys (\y ys' ->
+      unOrdering (Nat.cmp x y)
+        (Nat.add (Nat.mul x (Nat.mul nx ny)) (go (Nat.suc Nat.zero) Nat.zero xs' ys))
+        (go nx (Nat.suc ny) xs ys')
+        (go nx ny xs ys'))
+      (Nat.mul x (Nat.mul nx ny)))
+  (go (Nat.suc nx) ny xs' ys)
+  Nat.zero -- impossible
+    ) 
+    (unList ys (\y ys' ->
+      unOrdering (Nat.cmp x y)
+        (Nat.add (Nat.mul x (Nat.mul nx ny)) (go (Nat.suc Nat.zero) Nat.zero xs' ys))
+        (go nx (Nat.suc ny) xs ys')
+        (go nx ny xs ys'))
+      (Nat.mul x (Nat.mul nx ny)))
+    ) Nat.zero)
+  (Nat.suc Nat.zero)
+  Nat.zero
+  (sort Nat.cmp xs)
+  (sort Nat.cmp ys)
+
 main :: List Nat -> List Nat
-main = \xs -> showNat (sum (unProd (unzip (map readLine (lines xs))) (\xs ys -> zipWith (\x y -> Int.abs (Int.sub x y)) (sort Nat.cmp xs) (sort Nat.cmp ys))))
+main = \xs -> showNat (unProd (unzip (map readLine (lines xs))) (\xs ys -> similarityScore xs ys))

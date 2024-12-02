@@ -9,4 +9,4 @@ import Debug.Trace
 import Embedded.Hirane.HS
 
 main :: IO ()
-main = interact (from embedString . Hirane.main . to embedString)
+main = interact ((++ "\n") . from embedString . Hirane.main . to embedString)
