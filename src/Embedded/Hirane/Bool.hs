@@ -22,5 +22,6 @@ and = \x y -> unBool x y false
 
 toBit :: Bool -> Bit
 toBit = \x -> unBool x b1 b0
+
 fromBit :: Bit -> Bool
 fromBit = \x -> unBit x true false

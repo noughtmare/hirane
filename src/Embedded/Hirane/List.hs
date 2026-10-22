@@ -5,6 +5,8 @@ import qualified Prelude ()
 import Embedded.Hirane.Fix
 import Embedded.Hirane.Product
 import Embedded.Hirane.Ord
+import Embedded.Hirane.Nat
+import Embedded.Hirane.Maybe
 
 newtype List a = List { unList :: forall x. (a -> List a -> x) -> x -> x }
 
@@ -67,3 +69,24 @@ unzip = foldr (\x xs -> unProd x (\y z -> unProd xs (\ys zs -> prod (cons y ys) 
 
 reverse :: List a -> List a
 reverse = \xs -> foldr (\x go ys -> go (cons x ys)) (\z -> z) xs nil
+
+uncons :: List a -> Maybe (Prod a (List a))
+uncons = \xs -> unList xs (\x xs -> just (prod x xs)) nothing
+
+take :: Nat -> List a -> List a
+take = fix (\go n xs -> 
+  unMaybe (pred n) 
+    (\n' -> 
+      unMaybe (uncons xs) 
+        (\xxs -> unProd xxs (\x xs' -> cons x (go n' xs')))
+        nil)
+    nil)
+
+drop :: Nat -> List a -> List a
+drop = fix (\go n xs -> 
+  unMaybe (pred n)
+    (\n' ->
+      unMaybe (uncons xs)
+        (\xxs -> unProd xxs (\_ xs' -> go n' xs'))
+        nil)
+    xs)

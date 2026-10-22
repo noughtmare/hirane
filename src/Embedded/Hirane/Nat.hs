@@ -9,6 +9,11 @@ import Embedded.Hirane.Maybe
 import qualified Embedded.Hirane.Ord as Ord
 import Embedded.Hirane.Ord (Ordering)
 
+-- natural numbers with a binary representation.
+-- If 'n :: Nat' then 'unNat n even odd zero' identifies three cases:
+-- if 'n' is even it will evaluate to 'even (n / 2)'
+-- if 'n' is odd it will evaluate to 'odd ((n - 1) / 2)'
+-- if 'n' is zero it will evaluate to 'zero' 
 newtype Nat = Nat { unNat :: forall x. (Nat -> x) -> (Nat -> x) -> x -> x }
 
 cmp :: Nat -> Nat -> Ordering
@@ -33,6 +38,11 @@ suc :: Nat -> Nat
 suc = add (pushBit b1 zero)
 
 -- Note: little endian
+--
+-- examples:
+-- pushBit 1 0b1010 = 0b10101
+-- pushBit 0 0b1010 = 0b10100
+-- pushBit 0 0b0 = 0b0
 pushBit :: Bit -> Nat -> Nat
 pushBit = \b x -> Nat (\e o _ -> unBit b o e x)
 
