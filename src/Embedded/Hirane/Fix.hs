@@ -1,4 +1,4 @@
-module Embedded.Hirane.Fix where
+module Embedded.Hirane.Fix (fix) where
 
 import qualified Prelude ()
 
@@ -9,5 +9,6 @@ newtype Fix a = In { out :: Fix a -> a }
 diag :: Fix a -> a
 diag = \x -> out x x
 
+{-# NOINLINE fix #-}
 fix :: (a -> a) -> a
 fix = \f -> diag (In (\x -> f (out x x)))

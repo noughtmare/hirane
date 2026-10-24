@@ -16,9 +16,10 @@ true = Bool b1
 not :: Bool -> Bool
 not = \x -> unBool x false true
 
-or, and :: Bool -> Bool -> Bool
+or, and, andBool :: Bool -> Bool -> Bool
 or = \x y -> unBool x true y
 and = \x y -> unBool x y false
+andBool = \x y -> unBool x y false
 
 toBit :: Bool -> Bit
 toBit = \x -> unBool x b1 b0

@@ -37,6 +37,20 @@ zero = Nat (\_ _ z -> z)
 suc :: Nat -> Nat
 suc = add (pushBit b1 zero)
 
+n0, n1, n2, n3, n4, n5, n6, n7, n8, n9, n10, n40 :: Nat
+n0 = zero
+n1 = suc n0
+n2 = suc n1
+n3 = suc n2
+n4 = suc n3
+n5 = suc n4
+n6 = suc n5
+n7 = suc n6
+n8 = suc n7
+n9 = suc n8
+n10 = suc n9
+n40 = mul n4 n10
+
 -- Note: little endian
 --
 -- examples:
@@ -69,6 +83,9 @@ add = fix (\add c x y ->
       (addBit c x))
     (addBit c y)
   ) b0
+
+addNat :: Nat -> Nat -> Nat
+addNat = add
 
 ifzero :: Nat -> Bool
 ifzero = \n -> unNat n

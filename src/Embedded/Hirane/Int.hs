@@ -1,6 +1,6 @@
 module Embedded.Hirane.Int where
 
-import qualified Prelude
+import qualified Prelude ()
 
 import Embedded.Hirane.Fix
 import Embedded.Hirane.Bit

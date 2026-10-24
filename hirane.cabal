@@ -19,20 +19,23 @@ common warnings
 library
     import:           warnings
     exposed-modules:
+      Embedded.Hirane.ASCII,
       Embedded.Hirane.HS,
       Embedded.Hirane.Nat,
       Embedded.Hirane.Int,
       Embedded.Hirane.Fix,
       Embedded.Hirane.Bit,
       Embedded.Hirane.Byte,
+      Embedded.Hirane.ByteSet,
       Embedded.Hirane.List,
       Embedded.Hirane.DList,
       Embedded.Hirane.Maybe,
+      Embedded.Hirane.Parser,
       Embedded.Hirane.Product,
       Embedded.Hirane.Sum,
       Embedded.Hirane.Bool,
       Embedded.Hirane.Ord,
-      Language.Hirane.AST
+      Language.Hirane.AST,
     -- other-modules:
     -- other-extensions:
     build-depends:    base
