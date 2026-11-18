@@ -73,6 +73,10 @@ seq = \p k -> unParser p (\emp first pf ->
         nilf)))
   )
 
+many, some :: Parser a -> Parser (List a)
+many = \p -> alt (some p) (epsilon nil)
+some = \p -> seq p (\x -> seq (many p) (\y -> epsilon (cons x y)))
+
 parse :: Parser a -> List Byte -> Maybe a
 parse = \p xs -> unParser p (\emp _ f -> 
   unListF (uncons xs) (\x xs' -> 

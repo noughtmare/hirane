@@ -30,6 +30,7 @@ library
       Embedded.Hirane.List,
       Embedded.Hirane.DList,
       Embedded.Hirane.Maybe,
+      Embedded.Hirane.Parser.Hirane,
       Embedded.Hirane.Parser,
       Embedded.Hirane.Product,
       Embedded.Hirane.Sum,
