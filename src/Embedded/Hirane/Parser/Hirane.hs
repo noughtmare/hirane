@@ -47,3 +47,33 @@ identifier = seq lowercase (\x -> seq (many (alt lowercase (alt uppercase digit)
 -- >>> import Embedded.Hirane.HS
 -- >>> from embedBool (H.isJust (parse (many (alt (symbol c0) (symbol c9))) (to embedString "0")))
 -- False
+-- >>> from embedBool (H.isJust (parse (many1 (alt (symbol c0) (symbol c9))) (to embedString "0")))
+-- >>> from embedBool (H.isJust (parse (many2 (alt (symbol c0) (symbol c9))) (to embedString "0")))
+-- False
+-- False
+-- >>> from embedBool (H.isJust (parse (alt (alt (symbol c0) (symbol c1)) (epsilon (byte x0 x0))) (to embedString "0")))
+-- >>> from embedBool (H.isJust (parse (alt (alt (symbol c0) (symbol c2)) (epsilon (byte x0 x0))) (to embedString "0")))
+-- >>> from embedBool (H.isJust (parse (alt (alt (symbol c0) (symbol c3)) (epsilon (byte x0 x0))) (to embedString "0")))
+-- >>> from embedBool (H.isJust (parse (alt (alt (symbol c0) (symbol c4)) (epsilon (byte x0 x0))) (to embedString "0")))
+-- >>> from embedBool (H.isJust (parse (alt (alt (symbol c0) (symbol c5)) (epsilon (byte x0 x0))) (to embedString "0")))
+-- >>> from embedBool (H.isJust (parse (alt (alt (symbol c0) (symbol c6)) (epsilon (byte x0 x0))) (to embedString "0")))
+-- >>> from embedBool (H.isJust (parse (alt (alt (symbol c0) (symbol c7)) (epsilon (byte x0 x0))) (to embedString "0")))
+-- >>> from embedBool (H.isJust (parse (alt (alt (symbol c0) (symbol c8)) (epsilon (byte x0 x0))) (to embedString "0")))
+-- >>> from embedBool (H.isJust (parse (alt (alt (symbol c0) (symbol c9)) (epsilon (byte x0 x0))) (to embedString "0")))
+-- True
+-- True
+-- False
+-- True
+-- False
+-- False
+-- False
+-- True
+-- False
+-- >>> import Embedded.Hirane.ByteSet as BS
+-- >>> import Embedded.Hirane.Bool
+-- >>> from embedBool (fromMaybe false (mapMaybe (elem cA) (disjointUnion (singletonByteSet cA) (singletonByteSet cB))))
+-- >>> from embedBool (elem cA (singletonByteSet cA))
+-- False
+-- True
+
+-- So the bug is probably in disjointUnion

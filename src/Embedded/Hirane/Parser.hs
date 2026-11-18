@@ -73,6 +73,12 @@ seq = \p k -> unParser p (\emp first pf ->
         nilf)))
   )
 
+many1 :: Parser a -> Parser (List a)
+many1 = \p -> alt (seq p (\x -> epsilon (cons x nil))) (epsilon nil)
+
+many2 :: Parser a -> Parser (List a)
+many2 = \p -> alt (seq p (\x -> seq (many1 p) (\xs -> epsilon (cons x xs)))) (epsilon nil)
+
 many, some :: Parser a -> Parser (List a)
 many = \p -> alt (some p) (epsilon nil)
 some = \p -> seq p (\x -> seq (many p) (\y -> epsilon (cons x y)))
