@@ -42,15 +42,17 @@ digit =
 identifier :: Parser (List Byte)
 identifier = seq lowercase (\x -> seq (many (alt lowercase (alt uppercase digit))) (\xs -> epsilon (cons x xs)))
 
--- There's a bug somewhere, because this fails:
+-- Bunch of test cases resulting from my investigation into a, now fixed, bug.
 -- >>> import Embedded.Hirane.Maybe as H
 -- >>> import Embedded.Hirane.HS
 -- >>> from embedBool (H.isJust (parse (many (alt (symbol c0) (symbol c9))) (to embedString "0")))
--- False
+-- >>> from embedBool (H.isJust (parse lowercase (to embedString "c")))
+-- True
+-- True
 -- >>> from embedBool (H.isJust (parse (many1 (alt (symbol c0) (symbol c9))) (to embedString "0")))
 -- >>> from embedBool (H.isJust (parse (many2 (alt (symbol c0) (symbol c9))) (to embedString "0")))
--- False
--- False
+-- True
+-- True
 -- >>> from embedBool (H.isJust (parse (alt (alt (symbol c0) (symbol c1)) (epsilon (byte x0 x0))) (to embedString "0")))
 -- >>> from embedBool (H.isJust (parse (alt (alt (symbol c0) (symbol c2)) (epsilon (byte x0 x0))) (to embedString "0")))
 -- >>> from embedBool (H.isJust (parse (alt (alt (symbol c0) (symbol c3)) (epsilon (byte x0 x0))) (to embedString "0")))
@@ -62,18 +64,58 @@ identifier = seq lowercase (\x -> seq (many (alt lowercase (alt uppercase digit)
 -- >>> from embedBool (H.isJust (parse (alt (alt (symbol c0) (symbol c9)) (epsilon (byte x0 x0))) (to embedString "0")))
 -- True
 -- True
--- False
 -- True
--- False
--- False
--- False
 -- True
--- False
+-- True
+-- True
+-- True
+-- True
+-- True
 -- >>> import Embedded.Hirane.ByteSet as BS
 -- >>> import Embedded.Hirane.Bool
+-- >>> from embedBool (fromMaybe false (mapMaybe (elem cA) (disjointUnion (singletonByteSet cA) (singletonByteSet cA))))
 -- >>> from embedBool (fromMaybe false (mapMaybe (elem cA) (disjointUnion (singletonByteSet cA) (singletonByteSet cB))))
--- >>> from embedBool (elem cA (singletonByteSet cA))
+-- >>> from embedBool (fromMaybe false (mapMaybe (elem cA) (disjointUnion (singletonByteSet cA) (singletonByteSet cC))))
+-- >>> from embedBool (fromMaybe false (mapMaybe (elem cA) (disjointUnion (singletonByteSet cA) (singletonByteSet cD))))
+-- >>> from embedBool (fromMaybe false (mapMaybe (elem cA) (disjointUnion (singletonByteSet cA) (singletonByteSet cE))))
+-- >>> from embedBool (fromMaybe false (mapMaybe (elem cA) (disjointUnion (singletonByteSet cA) (singletonByteSet cF))))
+-- >>> from embedBool (fromMaybe false (mapMaybe (elem cA) (disjointUnion (singletonByteSet cA) (singletonByteSet cG))))
 -- False
 -- True
-
--- So the bug is probably in disjointUnion
+-- True
+-- True
+-- True
+-- True
+-- True
+-- >>> from embedString (toList (singletonByteSet cA))
+-- >>> from embedString (fromMaybe nil (mapMaybe toList (disjointUnion (singletonByteSet cA) (singletonByteSet cA))))
+-- >>> from embedString (fromMaybe nil (mapMaybe toList (disjointUnion (singletonByteSet cA) (singletonByteSet cB))))
+-- >>> from embedString (fromMaybe nil (mapMaybe toList (disjointUnion (singletonByteSet cA) (singletonByteSet cC))))
+-- >>> from embedString (fromMaybe nil (mapMaybe toList (disjointUnion (singletonByteSet cA) (singletonByteSet cD))))
+-- >>> from embedString (fromMaybe nil (mapMaybe toList (disjointUnion (singletonByteSet cA) (singletonByteSet cE))))
+-- >>> from embedString (fromMaybe nil (mapMaybe toList (disjointUnion (singletonByteSet cA) (singletonByteSet cF))))
+-- >>> from embedString (fromMaybe nil (mapMaybe toList (disjointUnion (singletonByteSet cA) (singletonByteSet cG))))
+-- >>> from embedBool (elem cA (singletonByteSet cA))
+-- "A"
+-- ""
+-- "AB"
+-- "AC"
+-- "AD"
+-- "AE"
+-- "AF"
+-- "AG"
+-- True
+-- >>> from embedBool (elem cA (union (singletonByteSet cA) (singletonByteSet cA)))
+-- >>> from embedBool (elem cA (union (singletonByteSet cA) (singletonByteSet cB)))
+-- >>> from embedBool (elem cA (union (singletonByteSet cA) (singletonByteSet cC)))
+-- >>> from embedBool (elem cA (union (singletonByteSet cA) (singletonByteSet cD)))
+-- >>> from embedBool (elem cA (union (singletonByteSet cA) (singletonByteSet cE)))
+-- >>> from embedBool (elem cA (union (singletonByteSet cA) (singletonByteSet cF)))
+-- >>> from embedBool (elem cA (union (singletonByteSet cA) (singletonByteSet cG)))
+-- True
+-- True
+-- True
+-- True
+-- True
+-- True
+-- True

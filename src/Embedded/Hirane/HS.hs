@@ -3,7 +3,7 @@ module Embedded.Hirane.HS where
 import Embedded.Hirane.Nat as Hirane
 import Embedded.Hirane.Bit as Hirane
 import qualified Embedded.Hirane.Bool as Hirane
-import Embedded.Hirane.Byte as Hirane
+import Embedded.Hirane.Byte as Hirane hiding (setBit)
 import Embedded.Hirane.List as Hirane
 import Data.Bits
 import Data.Char

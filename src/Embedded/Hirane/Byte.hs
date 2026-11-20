@@ -20,6 +20,18 @@ e5 = Eight (\_ _ x _ _ _ _ _ -> x)
 e6 = Eight (\_ x _ _ _ _ _ _ -> x)
 e7 = Eight (\x _ _ _ _ _ _ _ -> x)
 
+eqEight :: Eight -> Eight -> Bool
+eqEight = \x y ->
+  unEight x
+    (unEight y true false false false false false false false)
+    (unEight y false true false false false false false false)
+    (unEight y false false true false false false false false)
+    (unEight y false false false true false false false false)
+    (unEight y false false false false true false false false)
+    (unEight y false false false false false true false false)
+    (unEight y false false false false false false true false)
+    (unEight y false false false false false false false true)
+
 add :: Eight -> Eight -> Maybe Eight
 add = \x y ->
   unEight x
@@ -77,6 +89,12 @@ xor = \x y -> Byte (\i -> Bit.xor (unByte x i) (unByte y i))
 shiftr, shiftl :: Byte -> Byte
 shiftr = \x -> Byte (\i -> unEight i b0 (unByte x e7) (unByte x e6) (unByte x e5) (unByte x e4) (unByte x e3) (unByte x e2) (unByte x e1))
 shiftl = \x -> Byte (\i -> unEight i (unByte x e6) (unByte x e5) (unByte x e4) (unByte x e3) (unByte x e2) (unByte x e1) (unByte x e0) b0)
+
+setBit :: Eight -> Byte -> Byte
+setBit = \e x -> Byte (\e' -> unBool (eqEight e e') b1 (unByte x e'))
+
+clearBit :: Eight -> Byte -> Byte
+clearBit = \e x -> Byte (\e' -> unBool (eqEight e e') b0 (unByte x e'))
 
 eqByte :: Byte -> Byte -> Bool
 eqByte x y = Bool (
