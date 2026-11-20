@@ -14,6 +14,9 @@ closeParen = byte x2 x9
 comma :: Byte
 comma = byte x2 xC
 
+dash :: Byte
+dash = byte x2 xD
+
 c0, c1, c2, c3, c4, c5, c6, c7, c8, c9 :: Byte
 c0 = byte x3 x0
 c1 = byte x3 x1
@@ -31,6 +34,9 @@ colon = byte x3 xA
 
 equals :: Byte
 equals = byte x3 xD
+
+rangle :: Byte
+rangle = byte x3 xE
 
 cA, cB, cC, cD, cE, cF, cG, cH, cI, cJ, cK, cL, cM, cN, cO, cP, cQ, cR, cS, cT, cU, cV, cW, cX, cY, cZ :: Byte
 cA = byte x4 x1
@@ -59,6 +65,9 @@ cW = byte x5 x7
 cX = byte x5 x8
 cY = byte x5 x9
 cZ = byte x5 xA
+
+backslash :: Byte
+backslash = byte x5 xC
 
 ca, cb, cc, cd, ce, cf, cg, ch, ci, cj, ck, cl, cm, cn, co, cp, cq, cr, cs, ct, cu, cv, cw, cx, cy, cz :: Byte
 ca = byte x6 x1

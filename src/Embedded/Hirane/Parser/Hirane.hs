@@ -42,12 +42,62 @@ digit =
 identifier :: Parser (List Byte)
 identifier = seq lowercase (\x -> seq (many (alt lowercase (alt uppercase digit))) (\xs -> epsilon (cons x xs)))
 
+-- data Exp = Var String | Lam String Exp | App Exp Exp
+newtype Exp = MkExp { unExp :: forall x. (List Byte -> x) -> (List Byte -> Exp -> x) -> (Exp -> Exp -> x) -> x }
+
+var :: List Byte -> Exp
+var x = MkExp (\var _ _ -> var x)
+
+lam :: List Byte -> Exp -> Exp
+lam x y = MkExp (\_ lam _ -> lam x y)
+
+app :: Exp -> Exp -> Exp
+app x y = MkExp (\_ _ app -> app x y)
+
+lexeme :: Parser a -> Parser a
+lexeme x = x
+-- lexeme = \p -> seq (many (symbol space)) (\_ -> p)
+
+parens :: Parser a -> Parser a
+parens = \p ->
+  seq (symbol openParen) (\_ ->
+  seq p (\x ->
+  seq (lexeme (symbol closeParen)) (\_ ->
+  epsilon x)))
+
+seq0 :: Parser a -> Parser b -> Parser b
+seq0 x y = seq x (\_ -> y)
+
+pvar, plam :: Parser Exp
+pvar = seq identifier (\x -> epsilon (var x))
+plam = seq (symbol backslash) 
+  (\_ -> seq (lexeme identifier) 
+  (\x -> seq (lexeme (seq (symbol dash) (\_ -> symbol rangle)))
+  (\_ -> seq (lexeme exp) 
+  (\y -> epsilon (lam x y)))))
+
+exp :: Parser Exp
+exp = seq exp1 (\f -> alt (seq (symbol space) (\_ -> seq exp (\x -> epsilon (app f x)))) (epsilon f))
+
+exp1 :: Parser Exp
+exp1 = alt pvar (parens exp1) -- (lexeme (alt plam exp))
+
 -- Bunch of test cases resulting from my investigation into a, now fixed, bug.
 -- >>> import Embedded.Hirane.Maybe as H
 -- >>> import Embedded.Hirane.HS
+-- >>> from embedBool (H.isJust (parse identifier (to embedString "x")))
 -- >>> from embedBool (H.isJust (parse (many (alt (symbol c0) (symbol c9))) (to embedString "0")))
 -- >>> from embedBool (H.isJust (parse lowercase (to embedString "c")))
 -- True
+-- True
+-- True
+-- >>> from embedBool (H.isJust (parse (some (symbol cx)) (to embedString "xxx")))
+-- >>> from embedBool (H.isJust (parse (seq0 (some (symbol cx)) (symbol cA)) (to embedString "xA")))
+-- >>> from embedBool (H.isJust (parse (seq0 (seq0 (symbol cx) (alt (symbol cx) (epsilon cx))) (symbol cA)) (to embedString "xA")))
+-- >>> from embedBool (H.isJust (parse (seq0 (symbol cx) (seq0 (alt (symbol cx) (epsilon cx)) (symbol cA))) (to embedString "xA")))
+-- True
+-- False
+-- False
 -- True
 -- >>> from embedBool (H.isJust (parse (many1 (alt (symbol c0) (symbol c9))) (to embedString "0")))
 -- >>> from embedBool (H.isJust (parse (many2 (alt (symbol c0) (symbol c9))) (to embedString "0")))
