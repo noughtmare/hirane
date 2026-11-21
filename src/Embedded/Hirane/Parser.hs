@@ -30,71 +30,55 @@ symbol = \s -> MkParser (\f -> f nothing (singletonByteSet s) (\b bs _ ->
 -- like <|> from Alternative
 alt :: Parser a -> Parser a -> Parser a
 alt = \p q -> 
-  unMaybe (disjointUnion (unParser p (\_ x _ -> x)) (unParser q (\_ x _ -> x)))
+  unParser p (\pemp pfirst pf ->
+  unParser q (\qemp qfirst qf ->
+  unMaybe (disjointUnion pfirst qfirst)
     (\first -> 
       MkParser (\f -> f 
-      (firstJust (unParser p (\x _ _ -> x)) (unParser q (\x _ _ -> x)))
+      (firstJust pemp qemp)
       first
       (\b bs follow -> 
-        unBool (elem b (unParser p (\_ x _ -> x))) (unParser p (\_ _ f -> f b bs follow)) 
-        (unBool (elem b (unParser q (\_ x _ -> x))) (unParser q (\_ _ f -> f b bs follow))
-        (unMaybe (unParser p (\x _ _ -> x)) 
-          (\x -> 
-            let followx = follow x in
-            unMaybe (unParser q (\x _ _ -> x))
-              (\y -> 
-                let followy = follow y in
-                -- if both can be empty, the resulting follow sets must be disjoint
-                unBool (isJust (disjointUnion followx followy))
-                  (unBool (elem b followx) 
-                    (unParser p (\_ _ f -> f b bs follow))
-                    (unBool (elem b followy)
-                      (unParser q (\_ _ f -> f b bs follow))
-                      nilf)) 
-                  nilf)
-              (unBool (elem b (follow x))
-                (unParser p (\_ _ f -> f b bs follow))
-                nilf)) 
-          (unMaybe (unParser q (\x _ _ -> x))
-            (\y -> unBool (elem b (follow y))
-              (unParser q (\_ _ f -> f b bs follow))
-              nilf)
+        unBool (elem b pfirst) (pf b bs follow)
+        (unBool (elem b qfirst) (qf b bs follow)
+        (unBool (unMaybe pemp (\x -> elem b (follow x)) false)
+          (unBool (unMaybe qemp (\y -> elem b (follow y)) false) 
+            nilf -- follow ambiguity
+            (pf b bs follow))
+          (unBool (unMaybe qemp (\y -> elem b (follow y)) false) 
+            (qf b bs follow)
             nilf))
         ))
     ))
-    empty
+    empty)) -- first ambiguity
 
 -- like >>= from Monad
 seq :: Parser a -> (a -> Parser b) -> Parser b
 seq = \p k -> unParser p (\emp first pf ->
+  let k' follow = 
+        (\x bbs ->
+          unParser (k x) (\kemp _ kf ->
+          unListF (uncons bbs)
+            (\b' bs' -> kf b' bs' follow)
+            (unMaybe kemp (\y -> consf y nil) nilf)))
+  in
   unMaybe emp (\pe -> 
     unParser (k pe) (\keemp kefirst _ ->
       (MkParser (\f -> f 
         keemp
         (union kefirst first)
         (\b bs follow ->
-          unListF (pf b bs (\_x -> {- assert _x == pe -} unMaybe keemp (\kres -> union kefirst (follow kres)) kefirst))
-            (\x bbs ->
-              unParser (k x) (\kemp _ kf ->
-              unListF (uncons bbs)
-                (\b' bs' -> kf b' bs' follow)
-                (unMaybe kemp (\y -> consf y nil) nilf)))
-            nilf)))))
+          unListF (pf b bs (\_x -> 
+              -- assert _x == pe
+              unMaybe keemp (\kres -> union kefirst (follow kres)) kefirst))
+            (k' follow)
+            nilf
+            )))))
     (MkParser (\f -> f nothing first (\b bs follow ->
       unListF (pf b bs (\pres -> unParser (k pres) (\kemp kfirst _ -> unMaybe kemp (\kres -> union kfirst (follow kres)) kfirst)))
-        (\x bbs ->
-          unParser (k x) (\kemp _ kf ->
-            unListF (uncons bbs)
-              (\b' bs' -> kf b' bs' follow)
-              (unMaybe kemp (\y -> consf y nil) nilf)))
-        nilf)))
+        (k' follow)
+        nilf
+        )))
   )
-
-many1 :: Parser a -> Parser (List a)
-many1 = \p -> alt (seq p (\x -> epsilon (cons x nil))) (epsilon nil)
-
-many2 :: Parser a -> Parser (List a)
-many2 = \p -> alt (seq p (\x -> seq (many1 p) (\xs -> epsilon (cons x xs)))) (epsilon nil)
 
 many, some :: Parser a -> Parser (List a)
 many = \p -> alt (some p) (epsilon nil)

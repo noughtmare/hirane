@@ -67,6 +67,14 @@ parens = \p ->
 seq0 :: Parser a -> Parser b -> Parser b
 seq0 x y = seq x (\_ -> y)
 
+-- The basic grammar structure looks like this:
+--
+-- E  ::= \ x -> E | E1 E*
+-- E* ::= <space> E | <empty>
+-- E1 ::= x | ( E )
+--
+-- This is LL(1)
+
 pvar, plam :: Parser Exp
 pvar = seq identifier (\x -> epsilon (var x))
 plam = seq (symbol backslash) 
@@ -76,7 +84,7 @@ plam = seq (symbol backslash)
   (\y -> epsilon (lam x y)))))
 
 exp :: Parser Exp
-exp = alt plam (seq exp1 (\f -> alt (seq (some (symbol space)) (\_ -> seq exp (\x -> epsilon (app f x)))) (epsilon f)))
+exp = alt plam (seq exp1 (\f -> alt (seq (symbol space) (\_ -> seq (lexeme exp) (\x -> epsilon (app f x)))) (epsilon f)))
 
 exp1 :: Parser Exp
 exp1 = alt pvar (parens (lexeme exp))
@@ -89,6 +97,8 @@ exp1 = alt pvar (parens (lexeme exp))
 -- >>> from embedBool (H.isJust (parse exp (to embedString "(\\x->x)")))
 -- >>> from embedBool (H.isJust (parse exp (to embedString "\\x->\\y->x")))
 -- >>> from embedBool (H.isJust (parse (lexeme exp) (to embedString "\\x -> \\ y -> x")))
+-- >>> from embedBool (H.isJust (parse (lexeme exp) (to embedString "\\f -> \\ g -> \\ x -> f (g x)")))
+-- True
 -- True
 -- True
 -- True
