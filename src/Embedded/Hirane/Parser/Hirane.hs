@@ -82,7 +82,12 @@ exp = seq exp1 (\f -> alt (seq (symbol space) (\_ -> seq exp (\x -> epsilon (app
 exp1 :: Parser Exp
 exp1 = alt pvar (parens exp1) -- (lexeme (alt plam exp))
 
--- Bunch of test cases resulting from my investigation into a, now fixed, bug.
+-- Bunch of test cases resulting from my investigation into bugs.
+-- >>> import Embedded.Hirane.Maybe as H
+-- >>> import Embedded.Hirane.HS
+-- >>> from embedBool (H.isJust (parse (seq0 (seq0 (some (symbol cx)) (epsilon cx)) (symbol closeParen)) (to embedString "x)")))
+-- False
+
 -- >>> import Embedded.Hirane.Maybe as H
 -- >>> import Embedded.Hirane.HS
 -- >>> from embedBool (H.isJust (parse identifier (to embedString "x")))
@@ -91,13 +96,15 @@ exp1 = alt pvar (parens exp1) -- (lexeme (alt plam exp))
 -- True
 -- True
 -- True
+-- >>> from embedBool (H.isJust (parse (seq0 (seq0 (some (symbol cx)) (epsilon cx)) (symbol closeParen)) (to embedString "x)")))
 -- >>> from embedBool (H.isJust (parse (some (symbol cx)) (to embedString "xxx")))
 -- >>> from embedBool (H.isJust (parse (seq0 (some (symbol cx)) (symbol cA)) (to embedString "xA")))
 -- >>> from embedBool (H.isJust (parse (seq0 (seq0 (symbol cx) (alt (symbol cx) (epsilon cx))) (symbol cA)) (to embedString "xA")))
 -- >>> from embedBool (H.isJust (parse (seq0 (symbol cx) (seq0 (alt (symbol cx) (epsilon cx)) (symbol cA))) (to embedString "xA")))
+-- False
 -- True
--- False
--- False
+-- True
+-- True
 -- True
 -- >>> from embedBool (H.isJust (parse (many1 (alt (symbol c0) (symbol c9))) (to embedString "0")))
 -- >>> from embedBool (H.isJust (parse (many2 (alt (symbol c0) (symbol c9))) (to embedString "0")))
