@@ -81,7 +81,7 @@ seq = \p k -> unParser p (\emp first pf ->
                 (unMaybe kemp (\y -> consf y nil) nilf)))
             nilf)))))
     (MkParser (\f -> f nothing first (\b bs follow ->
-      unListF (pf b bs (\x -> unParser (k x) (\_ x _ -> x)))
+      unListF (pf b bs (\x -> unParser (k x) (\emp x _ -> unMaybe emp (\y -> union x (follow y)) x)))
         (\x bbs ->
           unParser (k x) (\kemp _ kf ->
             unListF (uncons bbs)

@@ -80,13 +80,15 @@ exp :: Parser Exp
 exp = seq exp1 (\f -> alt (seq (symbol space) (\_ -> seq exp (\x -> epsilon (app f x)))) (epsilon f))
 
 exp1 :: Parser Exp
-exp1 = alt pvar (parens exp1) -- (lexeme (alt plam exp))
+exp1 = alt pvar (lexeme (alt plam exp))
 
 -- Bunch of test cases resulting from my investigation into bugs.
 -- >>> import Embedded.Hirane.Maybe as H
 -- >>> import Embedded.Hirane.HS
--- >>> from embedBool (H.isJust (parse (seq0 (seq0 (some (symbol cx)) (epsilon cx)) (symbol closeParen)) (to embedString "x)")))
--- False
+-- >>> from embedBool (H.isJust (parse exp1 (to embedString "((x12))")))
+-- >>> from embedBool (H.isJust (parse plam (to embedString "(\\x->x)")))
+-- True
+-- True
 
 -- >>> import Embedded.Hirane.Maybe as H
 -- >>> import Embedded.Hirane.HS
