@@ -73,7 +73,7 @@ seq = \p k -> unParser p (\emp first pf ->
         keemp
         (union kefirst first)
         (\b bs follow ->
-          unListF (pf b bs (\_x -> {- assert _x == pe -} unMaybe keemp (\y -> union kefirst (follow y)) kefirst))
+          unListF (pf b bs (\_x -> {- assert _x == pe -} unMaybe keemp (\kres -> union kefirst (follow kres)) kefirst))
             (\x bbs ->
               unParser (k x) (\kemp _ kf ->
               unListF (uncons bbs)
@@ -81,7 +81,7 @@ seq = \p k -> unParser p (\emp first pf ->
                 (unMaybe kemp (\y -> consf y nil) nilf)))
             nilf)))))
     (MkParser (\f -> f nothing first (\b bs follow ->
-      unListF (pf b bs (\x -> unParser (k x) (\emp x _ -> unMaybe emp (\y -> union x (follow y)) x)))
+      unListF (pf b bs (\pres -> unParser (k pres) (\kemp kfirst _ -> unMaybe kemp (\kres -> union kfirst (follow kres)) kfirst)))
         (\x bbs ->
           unParser (k x) (\kemp _ kf ->
             unListF (uncons bbs)

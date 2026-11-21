@@ -5,7 +5,7 @@ import Prelude ()
 import Embedded.Hirane.Byte
 
 space :: Byte
-space = byte x2 x1
+space = byte x2 x0
 
 openParen, closeParen :: Byte
 openParen = byte x2 x8

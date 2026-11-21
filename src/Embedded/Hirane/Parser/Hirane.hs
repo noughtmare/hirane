@@ -55,8 +55,7 @@ app :: Exp -> Exp -> Exp
 app x y = MkExp (\_ _ app -> app x y)
 
 lexeme :: Parser a -> Parser a
-lexeme x = x
--- lexeme = \p -> seq (many (symbol space)) (\_ -> p)
+lexeme = \p -> seq0 (many (symbol space)) p
 
 parens :: Parser a -> Parser a
 parens = \p ->
@@ -77,16 +76,22 @@ plam = seq (symbol backslash)
   (\y -> epsilon (lam x y)))))
 
 exp :: Parser Exp
-exp = seq exp1 (\f -> alt (seq (symbol space) (\_ -> seq exp (\x -> epsilon (app f x)))) (epsilon f))
+exp = alt plam (seq exp1 (\f -> alt (seq (some (symbol space)) (\_ -> seq exp (\x -> epsilon (app f x)))) (epsilon f)))
 
 exp1 :: Parser Exp
-exp1 = alt pvar (lexeme (alt plam exp))
+exp1 = alt pvar (parens (lexeme exp))
 
 -- Bunch of test cases resulting from my investigation into bugs.
 -- >>> import Embedded.Hirane.Maybe as H
 -- >>> import Embedded.Hirane.HS
 -- >>> from embedBool (H.isJust (parse exp1 (to embedString "((x12))")))
--- >>> from embedBool (H.isJust (parse plam (to embedString "(\\x->x)")))
+-- >>> from embedBool (H.isJust (parse plam (to embedString "\\x->x")))
+-- >>> from embedBool (H.isJust (parse exp (to embedString "(\\x->x)")))
+-- >>> from embedBool (H.isJust (parse exp (to embedString "\\x->\\y->x")))
+-- >>> from embedBool (H.isJust (parse (lexeme exp) (to embedString "\\x -> \\ y -> x")))
+-- True
+-- True
+-- True
 -- True
 -- True
 
@@ -103,7 +108,7 @@ exp1 = alt pvar (lexeme (alt plam exp))
 -- >>> from embedBool (H.isJust (parse (seq0 (some (symbol cx)) (symbol cA)) (to embedString "xA")))
 -- >>> from embedBool (H.isJust (parse (seq0 (seq0 (symbol cx) (alt (symbol cx) (epsilon cx))) (symbol cA)) (to embedString "xA")))
 -- >>> from embedBool (H.isJust (parse (seq0 (symbol cx) (seq0 (alt (symbol cx) (epsilon cx)) (symbol cA))) (to embedString "xA")))
--- False
+-- True
 -- True
 -- True
 -- True
